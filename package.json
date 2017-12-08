@@ -17,9 +17,12 @@
   },
   "homepage": "https://github.com/rbaheti/rdbms-api-full#readme",
   "dependencies": {
+    "add": "^2.0.6",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "global": "^4.3.2",
     "knex": "^0.14.2",
+    "migrate": "^1.0.0",
     "mysql": "^2.15.0",
     "sqlite3": "^3.1.13"
   }
