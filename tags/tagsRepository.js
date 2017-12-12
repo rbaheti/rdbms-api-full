@@ -1,20 +1,28 @@
-const db = require('../configuration/db.js');
+
+const db = require('../database/dbConfiguration.js');
 
 module.exports = {
   get: function(id) {
     let query = db('tags');
     if (id) {
-      query.where('id', id);
+      query.where('id', id).first();
     }
-    return query.then();
+    
+    return query;
+  },
+  insert: function(tag) {
+    return db('tags')
+      .insert(tag)
+      .then(ids => ({ id: ids[0] }));
+  },
+  update: function(id, tag) {
+    return db('tags')
+      .where('id', id)
+      .update(tag);
+  },
+  remove: function(id) {
+    return db('tags')
+      .where('id', id)
+      .del();
   },
 };
-
-/*
-
-select p.text, u.name, t.tag from posts p
-join users u on p.userId = u.id
-join posttags pt on p.id = pt.postId
-join tags t on pt.tagId = t.id
-
-*/

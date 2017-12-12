@@ -1,12 +1,28 @@
-
-exports.up = function(knex, Promise) {
-  	return knex.schema.createTable('users', function(tbl) {
-        tbl.increments('id'); // primary key
-        tbl.string('name', 128).notNullable();
-        tbl.timestamp('createdAt').defaultTo(knex.fn.now());
+exports.up = function(knex) {
+  return createUsersTable(knex)
+    .then(createPostsTable)
+    .then(createTagsTable)
+    .then(createPostTagsTable)
+    .catch(error => {
+      console.log(error);
+      reject(error);
     });
 };
 
-exports.down = function(knex, Promise) {
-  return knex.schema.dropTableIfExists('users');
+exports.down = function(knex) {
+  	return knex.schema
+	    .dropTableIfExists('posttags')
+	    .then(function() {
+	      console.log('dropping tags');
+	      return knex.schema.dropTableIfExists('tags');
+	    })
+	    .then(function() {
+	      console.log('dropping posts');
+	      return knex.schema.dropTableIfExists('posts');
+	    })
+	    .then(function() {
+	      console.log('dropping users');
+	      return knex.schema.dropTableIfExists('users');
+	    })
+	    .catch(error => console.log(error));
 };

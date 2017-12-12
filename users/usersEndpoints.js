@@ -1,56 +1,67 @@
 const express = require('express');
 
-const repository = require('./usersRepository');
+const users = require('./usersController');
 
 const userRouter = express.Router();
 
-userRouter.get('/', function(req, res) {
-  console.log("recieved req: ");
-  repository
-    .get()
-    .then(function(records) {
-      console.log("records: ", records);
-      res.status(200).json(records);
+userRouter.post('/', function(req, res) {
+  const user = req.body;
+
+  users
+    .insert(user)
+    .then(function(id) {
+      res.status(201).json(id);
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not retrieve the users' });
+    .catch(function(error) {
+      res.status(500).json({ error });
+    });
+});
+
+userRouter.get('/', function(req, res) {
+  users
+    .get()
+    .then(function(users) {
+      res.status(200).json(users);
+    })
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
 userRouter.get('/:id', function(req, res) {
   const { id } = req.params;
 
-  repository
+  users
     .get(id)
-    .then(function(record) {
-      if (record) {
-        res.status(200).json(record);
+    .then(function(user) {
+      if (user) {
+        res.status(200).json(user);
       } else {
         res.status(404).json(null);
       }
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not retrieve the user' });
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
 userRouter.get('/:id/posts', function(req, res) {
   const { id } = req.params;
 
-  repository
-    .get(id)
-    .then(function(records) {
-      res.status(200).json(records);
+  users
+    .getUserPosts(id)
+    .then(function(posts) {
+      res.status(200).json(posts);
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not retrieve the posts' });
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
 userRouter.put('/:id', function(req, res) {
   const { id } = req.params;
 
-  repository
+  users
     .update(id, req.body)
     .then(function(count) {
       if (count > 0) {
@@ -59,21 +70,21 @@ userRouter.put('/:id', function(req, res) {
         res.status(404).json(null);
       }
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not update the user' });
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
-userRouter.post('/', function(req, res) {
-  const { user } = req.body;
+userRouter.delete('/:id', function(req, res) {
+  const { id } = req.params;
 
-  repository
-    .insert(user)
-    .then(function(ids) {
-      res.status(200).json(ids);
+  users
+    .remove(id)
+    .then(function(count) {
+      res.status(200).json({ count });
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not create the users' });
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 

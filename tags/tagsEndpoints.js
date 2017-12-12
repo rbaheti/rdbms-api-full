@@ -1,47 +1,77 @@
 const express = require('express');
 
-const repository = require('./tagsRepository');
+const tags = require('./tagsController');
 
 const tagsRouter = express.Router();
 
-tagsRouter.get('/', function(req, res) {
-  repository
-    .get()
-    .then(function(records) {
-      res.status(200).json(records);
+tagsRouter.post('/', function(req, res) {
+  const tag = req.body;
+
+  tags
+    .insert(tag)
+    .then(function(id) {
+      res.status(201).json(id);
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not retrieve the tags' });
+    .catch(function(error) {
+      res.status(500).json({ error });
+    });
+});
+
+tagsRouter.get('/', function(req, res) {
+  tags
+    .get()
+    .then(function(tags) {
+      res.status(200).json(tags);
+    })
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
 tagsRouter.get('/:id', function(req, res) {
   const { id } = req.params;
 
-  repository
+  tags
     .get(id)
-    .then(function(records) {
-      if (records.length > 0) {
-        res.status(200).json(records);
+    .then(function(tag) {
+      if (tag) {
+        res.status(200).json(tag);
       } else {
         res.status(404).json(null);
       }
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not retrieve the tag' });
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
-tagsRouter.post('/', function(req, res) {
-  const { tag } = req.body;
+tagsRouter.put('/:id', function(req, res) {
+  const { id } = req.params;
 
-  repository
-    .insert(tag)
-    .then(function(ids) {
-      res.status(200).json(ids);
+  tags
+    .update(id, req.body)
+    .then(function(count) {
+      if (count > 0) {
+        res.status(200).json({ updated: count });
+      } else {
+        res.status(404).json(null);
+      }
     })
-    .catch(function(err) {
-      res.status(500).json({ error: 'Could not create the tag' });
+    .catch(function(error) {
+      res.status(500).json({ error });
+    });
+});
+
+tagsRouter.delete('/:id', function(req, res) {
+  const { id } = req.params;
+
+  tags
+    .remove(id)
+    .then(function(count) {
+      res.status(200).json({ count });
+    })
+    .catch(function(error) {
+      res.status(500).json({ error });
     });
 });
 
